@@ -17,24 +17,35 @@ const todoSchema = new mongoose.Schema({
     date : {
         type : Date,
         default : Date.now
+    },
+    user : {
+        type : mongoose.Types.ObjectId,
+        ref : 'User'
     }
 })
 
 
-todoSchema.methods = {
-    findActive : function () {
-        return mongoose.model('Todo').find({status: 'inactive'})
-    }
-}
+// todoSchema.methods = {
+//     findActive : function () {
+//         return mongoose.model('Todo').find({status: 'inactive'})
+//     }
+// }
 
-todoSchema.statics = {
-    findByJs : function () {
-        return this.find({title : /no/i})
-    }
-}
+// todoSchema.statics = {
+//     findByJs : function () {
+//         return this.find({title : /no/i})
+//     }
+// }
+
+// todoSchema.query = {
+//     byLanguage : function (language){
+//         return this.find({title : new RegExp(language, 'i')})
+//     }
+// }
+
 
 todoSchema.query = {
-    byLanguage : function (language){
+    byLanguage : function (language) {
         return this.find({title : new RegExp(language, 'i')})
     }
 }

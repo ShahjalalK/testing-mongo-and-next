@@ -1,69 +1,74 @@
-import mongoDbConnect from "../../../../helper/mongoDbConnect"
-import todoModel from "../../../../model/todoModel"
+import mongoDbConnect from '../../../../helper/mongoDbConnect'
+import todoModel from '../../../../model/todoModel';
 mongoDbConnect()
-export default async (req, res) => {
+
+export default async function handler(req, res) {
     switch (req.method) {
-        case "PUT":
-            await todoUpdate(req, res)
+        case "DELETE":
+            await deleteTodo (req, res)
             break;
             case "GET":
-                await todoSingleDataGet(req, res)
+                await getTodo (req, res)
                 break;
-                case "DELETE":
-                await todoDelete(req, res)
+            case "PUT":
+                await updateTodo (req, res)
                 break;
-       
+    
     }
     
-}
+  }
 
-const  todoUpdate = async (req, res) => {
+
+  const deleteTodo = async (req, res) => {
     try{
+        const {pid} = req.query
+        await todoModel.deleteOne({_id:pid})
+        res.status(200).json({message: 'Delete Success'})
+    }
+    catch(error){
+        console.log(error)
+        console.log('Delete error')
+        process.exit(1)
+    }
+  }
+
+  const getTodo = async (req, res) => {
+    try{       
+        const {pid} = req.query
+        const data = await todoModel.findById({_id:pid})
+        res.status(200).json(data)
+    }
+    catch(error){
+        console.log(error)
+        console.log('GET error')
+        process.exit(1)
+    }
+  }
+
+  const updateTodo = async (req, res) => {
+    try{
+      
+        const {pid} = req.query
         const {title, description, status} = req.body
-      if(!title || !description || !status){
-        res.status(400).json({error : 'Please Full Fill'})
-      }
-    const {pid} = req.query
-    const data = await todoModel.findByIdAndUpdate({_id:pid}, {
-        $set : {
-            title,
-            description,
-            status
+        
+        if(!title || !description || !status){
+            res.status(422).json({error: 'Please Full Fill UP!'})
+        }else{
+            await todoModel.findByIdAndUpdate({_id:pid}, {
+                $set : {
+                    title,
+                    description,
+                    status
+                }
+            })
+            res.status(200).json({message: 'Update Success'})
         }
-    })
-    res.status(200).json({data})
-    }
-    catch(error){
-        console.log(error)
-        console.log('todo update error')
-        process.exit(1)
-    }
-}
-
-const  todoSingleDataGet = async (req, res) => {
-    try{
         
-    const {pid} = req.query
-    const data = await todoModel.findById({_id:pid}).select({_id:0, __v:0, date: 0})
-    res.status(200).json({data})
     }
     catch(error){
         console.log(error)
-        console.log('todo get error')
+        console.log('Delete error')
         process.exit(1)
     }
-}
+  }
 
-const  todoDelete = async (req, res) => {
-    try{
-        
-    const {pid} = req.query
-     await todoModel.findByIdAndDelete({_id:pid})
-    res.status(200).json({message : "Delete Success"})
-    }
-    catch(error){
-        console.log(error)
-        console.log('todo delete error')
-        process.exit(1)
-    }
-}
